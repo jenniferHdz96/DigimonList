@@ -1,14 +1,10 @@
 package com.example.digimon.ui.viewModel
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.digimon.data.model.Digimon
 import com.example.digimon.ui.usecases.GetDigimon
-import com.example.digimon.ui.usecases.GetDigimonByName
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +17,6 @@ class DigimonViewModel : ViewModel(){
     private val _digimonList = mutableStateListOf<Digimon>()
     val digimonList: List<Digimon> get() = _digimonList
 
-    private val _connectionState = MutableLiveData<Boolean>(false)
-
     private val _loading = MutableStateFlow(true)
     val loading = _loading.asStateFlow()
 
@@ -34,15 +28,14 @@ class DigimonViewModel : ViewModel(){
     }
 
     fun getDigimonList() = viewModelScope.launch{
-        _connectionState.value = true
         getDigimonUseCase().let {
-            _digimonList.clear()
-            _digimonList.addAll(it!!)
+            if (it != null) {
+                _digimonList.clear()
+                _digimonList.addAll(it)
+            }
+            else {
+                _digimonList.clear()
+            }
         }
-        returnConnectionState()
-    }
-
-    private fun returnConnectionState() {
-        _connectionState.value = false
     }
 }
